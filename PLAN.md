@@ -11,13 +11,13 @@ A docs commit, then eleven small steps, each ending in one commit. Every step ha
 | Driver | Pastes (and adapts) the prompt, then pastes the delivered files into IntelliJ at the given paths |
 | Reviewer | Reads the full diff in IntelliJ's commit dialog |
 | Rule checker | Compares the behaviour and the tests with DESIGN.md |
-| Tester | Runs `mvn test` (and the main when it exists) and ticks the checklist |
+| Tester | Runs all the tests (and the main when it exists) and ticks the checklist |
 
 **Loop for each step**
 
 1. The Driver sends the step's prompt.
 2. The Driver pastes every delivered file.
-3. The Tester runs `mvn test`.
+3. The Tester runs all the tests: in IntelliJ, right-click `src/test/java` > *Run 'All Tests'*, or `./test.sh` / `test.cmd`.
 4. The Reviewer and the Rule checker go through the checklists below.
 5. Commit with the proposed message, then push.
 
@@ -27,29 +27,30 @@ A docs commit, then eleven small steps, each ending in one commit. Every step ha
 
 **Checklist for every step**
 
-- [ ] `mvn test` is green, and the number of tests went up (steps that change code)
+- [ ] All tests are green, and their number went up (steps that change code)
 - [ ] Only the files of this step changed
-- [ ] No new dependency in `pom.xml`; no `new Random()`, `Math.random()` or system clock in game code
+- [ ] No new jar in `lib/`, no `pom.xml` or `build.gradle`; no `new Random()`, `Math.random()` or system clock in game code
 - [ ] Tests assert exact values taken from DESIGN.md, not just "no exception"
 - [ ] Each of us can explain every new class. If not, ask the agent to explain it before committing
 
 ---
 
-## Step 0 — Docs (no prompt)
+## Step 0 — Docs and JUnit jar (no prompt)
 
-Create an empty folder, run `git init`, add DESIGN.md, PLAN.md, CLAUDE.md and README.md, then commit and push.
+Create an empty folder and run `git init`. Add DESIGN.md, PLAN.md, CLAUDE.md and README.md at the root, and `junit-platform-console-standalone-1.9.1.jar` in a `lib/` folder. Commit and push.
 
-Commit: `docs: design, plan, agent instructions and readme`
+Commit: `docs: design, plan, agent instructions, readme and JUnit jar`
 
-## Step 1 — Maven skeleton
+## Step 1 — Project skeleton, no build tool
 
-> Step 1 of PLAN.md: Maven skeleton. Create pom.xml (Java 25 through `maven.compiler.release`, UTF-8, JUnit Jupiter 5 in test scope as the only dependency, a Surefire version that runs JUnit 5, `finalName` `skirmish-arena`, and a jar manifest with Main-Class `com.skirmisharena.Main`), a .gitignore for Maven and IntelliJ, a `Main` class that prints "Skirmish Arena", and one smoke test. No game code yet.
+> Step 1 of PLAN.md: project skeleton without any build tool (see CLAUDE.md). Create: the IntelliJ module files (`skirmish-arena.iml`, `.idea/modules.xml`, `.idea/misc.xml`) with `src/main/java` as sources, `src/test/java` as tests, JDK 25, and `lib/junit-platform-console-standalone-1.9.1.jar` as a test-scoped module library; a `.gitignore` that keeps those three files but ignores the rest of `.idea/`, plus `out/` and `build/`; `test.sh` and `test.cmd`, which compile all sources into `build/` with `javac` and run every test with the JUnit jar, and must work when the path contains spaces; a `Main` class that prints "Skirmish Arena"; and one smoke test. No game code yet.
 
 Checks:
-- [ ] `mvn package`, then `java -jar target/skirmish-arena.jar` prints "Skirmish Arena"
-- [ ] In IntelliJ, open `pom.xml` as a project and set the project SDK to 25
+- [ ] Open the folder in IntelliJ: `src/main/java` and `src/test/java` show as source and test folders. If IntelliJ asks for an SDK, pick your JDK 25
+- [ ] Right-click `src/test/java` > *Run 'All Tests'*: 1 green test. The test script gives the same result
+- [ ] `java src/main/java/com/skirmisharena/Main.java` prints "Skirmish Arena"
 
-Commit: `chore: maven project skeleton`
+Commit: `chore: project skeleton without build tool`
 
 ## Step 2 — Cards and pool
 
@@ -126,14 +127,14 @@ Commit: `feat(log): full turn-by-turn match log`
 > Step 9 of PLAN.md: the runnable deliverable. `SeriesStats` turns a list of `MatchResult` into the stats of DESIGN.md §9 (win rate per side, draws, average length, average damage per side, KO vs turn limit). `Main` parses `--bot-a`, `--bot-b`, `--matches`, `--seed` and `--log`, with the names and defaults of README.md, and rejects unknown options with a usage message. It creates one `Random` from the seed, runs N matches alternating the first player (odd → A, even → B), logs match 1 with `TextMatchLog` into the `--log` file and the others with `NoMatchLog`, then prints the stats. Tests: `SeriesStats` arithmetic on hand-made results; the same options run twice give identical stats and an identical log (determinism); argument errors.
 
 Checks:
-- [ ] Run `java -jar target/skirmish-arena.jar` twice: identical output
+- [ ] Run `java src/main/java/com/skirmisharena/Main.java` twice: identical output
 - [ ] Open `sample-match.log` and check it reads like DESIGN.md §9
 
 Commit: `feat: run N matches, print stats, write sample log`
 
 ## Step 10 — Reference runs and review
 
-Run these four commands (1000 matches, seed 42) and keep the outputs: `aggressive` vs `defensive`, `aggressive` vs `balanced`, `defensive` vs `balanced`, `aggressive` vs `aggressive`. Then:
+Run these four pairings with 1000 matches and seed 42, and keep the outputs: `aggressive` vs `defensive`, `aggressive` vs `balanced`, `defensive` vs `balanced`, `aggressive` vs `aggressive`. For example: `java src/main/java/com/skirmisharena/Main.java --bot-a aggressive --bot-b balanced --matches 1000 --seed 42`. Then:
 
 > Step 10 of PLAN.md. Here are the outputs of our four reference runs: `<paste>`. Put them as a table in the Output section of README.md, and update DESIGN.md §11 with what they show about KOs and match length. Then review the code against DESIGN.md, section by section, and list every gap you find. Do not fix anything in this step.
 

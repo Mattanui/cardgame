@@ -7,23 +7,24 @@ A plain-Java engine that simulates automated card duels between two AI-controlle
 ## Requirements
 
 - JDK 25
-- Maven 3.9 or later
+- No build tool. Our organization blocks Maven builds, so the project is built by IntelliJ or plain `javac`. The only library, JUnit 5, is the jar in `lib/`.
 
-## Build and test
+## Open in IntelliJ
 
-```bash
-mvn test
-```
+Open the repository folder. The module files in the repository already mark `src/main/java` as sources, `src/test/java` as tests, and the JUnit jar as a test library. If IntelliJ asks for an SDK, pick your JDK 25.
+
+## Test
+
+- **IntelliJ**: right-click `src/test/java`, then *Run 'All Tests'*.
+- **Command line**: `./test.sh`, or `test.cmd` on Windows. Both compile everything into `build/` and run every test.
 
 ## Run
 
-From IntelliJ: run `com.skirmisharena.Main`, adding program arguments in the run configuration if needed.
-
-From the command line:
+- **IntelliJ**: run `com.skirmisharena.Main`, with program arguments set in the run configuration if needed.
+- **Command line**: no compile step needed. Java 22+ compiles the source files on the fly:
 
 ```bash
-mvn package
-java -jar target/skirmish-arena.jar --bot-a aggressive --bot-b defensive --matches 1000 --seed 42
+java src/main/java/com/skirmisharena/Main.java --bot-a aggressive --bot-b defensive --matches 1000 --seed 42
 ```
 
 | Option | Default | Meaning |

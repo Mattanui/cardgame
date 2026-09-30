@@ -6,6 +6,7 @@ This file records the rules we decided where the brief was silent. It is the sin
 
 | Topic | The brief says | We decided |
 |---|---|---|
+| Build | Plain Java with Maven | No Maven: our organization blocks Maven builds. The project is built by IntelliJ or plain `javac`; JUnit 5 comes as a single jar in `lib/` |
 | Champion | 30 HP | 30 is also the maximum: healing never goes above it |
 | Deck | 20 cards, pool of ≥ 15 distinct types | Pool of 27 cards / 16 types (§4). Each match, each champion gets its own random 20 of the 27 |
 | Starting hand | — | 3 cards each; hand limit 7 |

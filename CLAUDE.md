@@ -8,15 +8,16 @@ Skirmish Arena is a plain-Java engine that simulates automated card duels betwee
 
 ## How this team works
 
-- 100 % vibecoding: the team never types or edits code by hand. They paste what you produce into IntelliJ, read the diff in the commit dialog, run the tests and commit.
+- 100 % vibecoding: the team never types or edits code by hand. They paste what you produce into IntelliJ, run the tests, read the diff in the commit dialog and commit.
 - One prompt = one step of PLAN.md. Do that step only: do not start the next one, and do not "improve" code outside its scope.
 - If the prompt, DESIGN.md and the existing code disagree, or a rule is missing, stop and ask. Never invent a game rule.
 - A rule change always updates DESIGN.md in the same step.
 
 ## Hard constraints
 
-- Java 25, Maven. groupId `com.skirmisharena`, artifactId `skirmish-arena`, root package `com.skirmisharena`.
-- No frameworks and no runtime dependencies. The only dependency is JUnit 5 (Jupiter), in test scope. No Mockito, Lombok or logging framework: write small stubs by hand, print with `System.out` or a `Writer`.
+- Java 25, root package `com.skirmisharena`.
+- **No build tool.** Our organization blocks Maven builds, so there is no `pom.xml` and no `build.gradle`; never add one. The project is built by IntelliJ or by plain `javac`. Layout: `src/main/java`, `src/test/java`, and `lib/` for the one jar we use.
+- No frameworks and no runtime dependencies. The only library is JUnit 5, as `lib/junit-platform-console-standalone-1.9.1.jar`, used by tests only. That is JUnit Jupiter 5.9: do not use APIs added in later versions. No Mockito, Lombok or logging framework: write small stubs by hand, print with `System.out` or a `Writer`.
 - Deterministic: every random choice goes through the single `java.util.Random` created from the run's seed and passed in. Never use `Math.random()`, `new Random()` without that seed, `ThreadLocalRandom`, `Collections.shuffle(list)` without the `Random`, the system clock, `HashMap`/`HashSet` iteration order in game logic, or parallel streams.
 - Bots never change the game state. They read a `BotView` and return a card from their hand, or pass. The engine validates every play and throws `IllegalStateException` on an illegal one.
 - English everywhere: code, comments, log lines, docs.
@@ -33,7 +34,7 @@ Skirmish Arena is a plain-Java engine that simulates automated card duels betwee
 
 - Every rule in DESIGN.md has at least one JUnit test, named after the rule (`halveRoundsDown`, `defenseCannotBePlayedWhileOneIsActive`).
 - Tests build their situation by hand (fixed hand, fixed pile, fixed seed) and assert exact values. Never assert on a random outcome you did not fix; never write a test that only checks "no exception".
-- `mvn test` must pass before you deliver.
+- All tests must pass before you deliver: `./test.sh` (or `test.cmd` on Windows), which compiles everything with `javac` and runs every test with the JUnit jar.
 
 ## Delivering a step
 
